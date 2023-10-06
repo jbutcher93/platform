@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: brand-chart
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: brand-chart
+    repoURL: http://github.com/jbutcher93/platform/infrastructure/kubernetes/brands/brand-chart
+    targetRevision: HEAD
+    helm:
+      releaseName: nginx
+  destination:
+    server: https://kubernetes.default.svc #on the same cluster, so we can use the internal address
+    namespace: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
