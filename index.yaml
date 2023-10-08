@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  brand-chart:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-10-08T14:10:45.85070096Z"
+    description: A Helm chart for Kubernetes
+    digest: c7339298177d984440fa5cf35cff5374afa83efe7661eea917823a3b6ea1ac1c
+    name: brand-chart
+    type: application
+    urls:
+    - https://github.com/jbutcher93/platform/releases/download/brand-chart-0.1.0/brand-chart-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-10-08T14:10:45.850707861Z"
