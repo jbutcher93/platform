@@ -24,8 +24,7 @@ configMap:
   name: nginx
   namespace: default
   data:
-    CR_DRIVER: "postgresql"
-    CR_PORT: "26257"
+    message: hello world
 
 imagePullSecrets: []
 nameOverride: ""
