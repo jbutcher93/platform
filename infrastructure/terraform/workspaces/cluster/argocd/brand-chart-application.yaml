@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     chart: brand-chart
-    repoURL: http://jbutcher93.github.io/platform/infrastructure/kubernetes/brands/brand-chart
+    repoURL: http://jbutcher93.github.io/platform/charts/brands
     targetRevision: 0.1.0
     helm:
       releaseName: nginx
