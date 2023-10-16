@@ -6,10 +6,12 @@ metadata:
 spec:
   project: default
   source:
-    chart: brand-chart
-    repoURL: http://jbutcher93.github.io/platform/
-    targetRevision: 0.1.0
+    repoURL: https://github.com/jbutcher93/platform.git
+    targetRevision: main
+    path: charts/brands 
     helm:
+      valueFiles: 
+        - values.yaml
       releaseName: nginx
   destination:
     server: https://kubernetes.default.svc #on the same cluster, so we can use the internal address
