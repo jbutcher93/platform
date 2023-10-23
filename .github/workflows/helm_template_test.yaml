@@ -5,7 +5,7 @@ on:
     branches:
       - *
     paths:
-      - "infrastructure/kubernetes/helm/**"
+      - "/**"
 
 jobs:
   release:
@@ -24,7 +24,6 @@ jobs:
         uses: azure/setup-helm@v3
 
       - name: Run helm template
-        working-directory: infrastructure/kubernetes/helm
         run: |
           find . -type f -name "Chart.yaml" -print0 | while IFS=0 read -r -d '' file; 
             do dir=$(dirname "$file")
