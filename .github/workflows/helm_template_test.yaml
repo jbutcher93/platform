@@ -1,9 +1,8 @@
 name: Helm template test
 
 on:
-  push:
-    branches:
-      - "*"
+  pull_request:
+    types: [opened, synchronize, edited]
     paths:
       - "/**"
 
