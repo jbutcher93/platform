@@ -4,6 +4,6 @@ description: A superchart
 type: application
 version: "0.1.0"
 dependencies:
-  - name: brand-chart
+  - name: subchart
     version: "0.1.0"
     repository: oci://us-central1-docker.pkg.dev/ls-devx-stage-3e9c/helm-charts
