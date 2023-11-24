@@ -1,15 +1,3 @@
-provider "google" {
-  project = "buoyant-arena-405622"
-  region  = "us-central1"
-  zone    = "us-central1-a"
-}
-
-provider "google-beta" {
-  project = "buoyant-arena-405622"
-  region  = "us-central1"
-  zone    = "us-central1-a"
-}
-
 resource "google_compute_instance" "default" {
   name         = "my-instance"
   machine_type = "n2-standard-2"
@@ -43,5 +31,24 @@ resource "google_compute_instance" "default" {
     foo = "bar"
   }
 
-  metadata_startup_script = "echo hi > /test.txt"
+  metadata_startup_script = <<-EOF
+        #!/bin/bash
+        echo "Hello, World" > index.html
+        sudo apt install busybox -y
+        nohup busybox httpd -f -p 8080 &
+    EOF
+}
+
+resource "google_compute_firewall" "allow_to_gce" {
+  name    = "allow-to-gce"
+  network = "default"
+  project = "buoyant-arena-405622"
+
+  allow {
+    protocol = "all"
+  }
+
+  target_tags = ["foo", "bar"]
+
+  source_ranges = ["0.0.0.0/0"]
 }
