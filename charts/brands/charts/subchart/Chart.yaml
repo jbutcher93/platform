@@ -1,5 +1,0 @@
-apiVersion: v2
-name: subchart
-description: A subchart used for testing
-type: application
-version: "0.1.0"
