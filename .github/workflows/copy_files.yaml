@@ -1,13 +1,25 @@
 name: Copy rhai scripts to router chart 
+
 on: 
+  pull_request:
   push:
     branches:
-      - "main"
+      - main
     paths:
-      - "./app/rhai/**"
+      - "app/rhai/**"
+
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: "Log level"
+        required: true
+        default: "warning"
+      tags:
+        description: "Manually Re-run Copy rhai scripts"
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   deploy:
