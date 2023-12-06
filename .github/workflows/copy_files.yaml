@@ -4,7 +4,7 @@ on:
     branches:
       - "main"
     paths:
-      - "./app/rhai/**
+      - "./app/rhai/**"
 
 permissions:
   contents: write
