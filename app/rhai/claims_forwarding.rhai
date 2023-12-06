@@ -17,5 +17,3 @@ fn process_request(request) {
     if sub == "" {
       log_error("Error: sub not present in token");
       throw "Error: sub not present in token";
-    };
-}
