@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: busybox
+  annotations:
+    reloader.stakater.com/auto: "true"
+  name: busybox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: busybox
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: busybox
+    spec:
+      containers:
+      - command:
+        - sleep
+        - "3600"
+        image: busybox
+        name: busybox
+        env:
+        - name: USER
+          valueFrom:
+            configMapKeyRef:
+              name: busybox
+              key: user
+        - name: whatever
+          value: |
+            ${rhai_scripts}
