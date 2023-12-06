@@ -1,7 +1,6 @@
 name: Copy rhai scripts to router chart 
 
 on: 
-  pull_request:
   push:
     branches:
       - main
