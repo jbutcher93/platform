@@ -1,0 +1,72 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ${brand}-router
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ${git_url}
+    targetRevision: ${target_revision}
+    path: infrastructure/kubernetes/helm/brand-app
+    helm:
+      parameters:
+        - name: router.fullnameOverride
+          value: ${brand}-router
+        - name: router.brand
+          value: ${brand}
+        - name: router.service.name
+          value: ${brand}-router-{{metadata.labels.region}}
+        - name: router.hostname
+          value: ${url}
+        - name: router.configmap.loglevel
+          value: ${loglevel}
+        - name: router.configmap.apollo_graph_ref
+          value: ${apollo_graph_id}@${environment}
+        - name: router.istio.gateway
+          value: asm-ingress/asm-ingressgateway
+        - name: router.image.repository
+          value: ghcr.io
+        - name: router.image.name
+          value: apollographql/router
+        - name: router.image.tag
+          value: ${router_version}
+        - name: router.replicaCount
+          value: "3"
+        - name: router.auth0.require
+          value: "${auth_require}"
+        %{ for index, url in auth_urls }
+        - name: router.auth0.jwks[${index}].url
+          value: ${url}.well-known/jwks.json
+        - name: router.auth0.jwks[${index}].issuer
+          value: ${url}
+        %{ endfor }
+        %{ if cors_origins != "" }
+        %{ for index, url in cors_origins }
+        - name: router.cors.origins[${index}]
+          value: ${url}
+        %{ endfor }
+        %{ endif }
+        - name: router.istio.namespace
+          value: ${brand}
+        - name: router.secrets.apollo_router.APOLLO_KEY
+          value: ${apollo_key}
+        - name: router.resources.requests.cpu
+          value: ${cpu}
+        - name: router.resources.requests.memory
+          value: ${memory}
+        - name: router.auth0.header
+          value: "${header_disabled}"
+        - name: router.rhai.enabled
+          value: "${rhai_enabled}"
+      valueFiles: 
+        - values.yaml
+  destination:
+    server: "{{server}}"
+    namespace: ${brand}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: ${prune}
