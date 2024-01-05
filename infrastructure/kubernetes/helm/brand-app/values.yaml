@@ -1,0 +1,41 @@
+router:
+  fullnameOverride: ""
+  brand: ""
+  hostname: ""
+  image:
+    repository: ""
+  replicaCount: ""
+  service:
+    name: ""
+    type: ClusterIP
+    port: 4000
+    healthport: 8089
+  secrets:
+    apollo_router:
+      APOLLO_KEY: ""
+  cors:
+    origins:
+    
+  auth0:
+    header: false
+    require: ""
+    jwks:
+    - url: ""
+      issuer: ""
+  local: false
+  configmap:
+    apollo_sandbox:
+      enabled: ""
+    apollo_graph_ref: ""
+    loglevel: ""
+    configuration.yaml: |
+        ""
+  resources:
+    requests:
+      cpu: ""
+      memory: ""
+  lightyearTopic:
+  # Specifies whether kafka topics should be created
+    create: false
+  rhai:
+    enabled: true

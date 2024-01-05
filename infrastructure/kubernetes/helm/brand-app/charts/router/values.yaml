@@ -1,0 +1,125 @@
+# Default values for brandrouter.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+brand: testbrand # this is the brand name. Call it what you want
+hostname: testbrand.local.lightyearapi.com # this is used by Istio to route traffic
+replicaCount: 1 # how many initial pod instances do you want 
+
+istio:
+    gateway: istio-system/istio-ingressgateway # Overrides gateway
+    namespace: istio-system # OPTIONAL: This will override the namespace
+
+image:
+  repository: ghcr.io/apollographql  # URL for the artifact registry or container image repository
+  name: router
+  pullPolicy: IfNotPresent 
+  tag: v1.32.0 
+
+nameOverride: "" # OPTIONAL: Set if you want to override the default of {brand} (created {nameOverride}-router)
+fullnameOverride: "" # Fullyqualified for maximum override the default of {brandrouter}
+
+# ConfigMap Values specific to deploying an Apollo Router
+local: false
+configmap: 
+  apollo_sandbox: 
+    enabled: false
+  apollo_graph_ref: ""
+  loglevel: ""
+  environment: local
+  configuration.yaml: |
+    supergraph:
+      listen: 0.0.0.0:4000
+      path: /graphql
+      introspection: false
+    health_check:
+      listen: 0.0.0.0:8088
+      enabled: true
+
+cors:
+  origins: 
+
+auth0:
+  header: false
+  require: ""
+  jwks:
+    - url: ""
+      issuer: ""
+  
+rhai:
+  enabled: true
+
+secrets:
+  apollo_router:
+    APOLLO_KEY: ""
+
+injectOtelSidecar:
+  enabled: true
+
+autoscaling:
+  enabled: true
+  minReplicas: 1 # Initial replicas in HPA. IGNORED if `enabled: false`
+  maxReplicas: 20 # Max number of replicas in HPA. IGNORED if `enabled: false`
+  targetCPUUtilizationPercentage: 60 # Set CPU % to scale on in HPA. IGNORED if `enabled: false`
+  targetMemoryUtilizationPercentage: 60 # Set MEMORY % to scale on in HPA. IGNORED if `enabled: false`
+
+# Define the port on which the Router service runs
+service:
+  name: ""
+  type: ClusterIP
+  port: 4000
+  healthport: 8089
+
+# Used in Deployment and PDB to determine rollout and disruption strategy
+rollingUpdate:
+  maxUnavailable: 1 
+  maxSurge: 1 
+
+### THE REST OF THESE ARE DEFAULT HELM VALUES. YOU CAN OVERRIDE THEM IF YOU WANT 
+
+resources:
+  requests:
+    cpu: ""
+    memory: ""
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+lightyearTopic:
+  # Specifies whether kafka topics should be created
+  create: false
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

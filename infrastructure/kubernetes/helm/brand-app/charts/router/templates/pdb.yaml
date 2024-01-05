@@ -1,0 +1,9 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "brandrouter.fullname" . }}-pdb
+spec:
+  maxUnavailable: {{ default 1 .Values.rollingUpdate.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: {{ include "brandrouter.fullname" . }}

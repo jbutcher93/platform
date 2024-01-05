@@ -1,0 +1,11 @@
+apiVersion: v2
+name: brand-app
+description: Deploy an Apollo Router for a new brand
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+
+dependencies:
+  - name: router
+    version: "0.1.0"
+    repository: oci://us-central1-docker.pkg.dev/ls-consumer-p-prod-1731/helm-charts

@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "brandrouter.fullname" . }}-vs
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  hosts:
+    - {{ .Values.hostname }}
+  gateways:
+    - {{ .Values.istio.gateway  }}
+  http:
+    - name: GraphQL
+      match:
+        - uri:
+            prefix: "/graphql"
+      route:
+        - destination:
+            host: {{ .Values.service.name }}.{{ .Release.Namespace }}.svc.cluster.local
+            port:
+              number: 4000

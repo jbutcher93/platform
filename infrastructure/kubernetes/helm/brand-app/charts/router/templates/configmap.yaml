@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "brandrouter.fullname" . }}-cm
+data:
+  APOLLO_GRAPH_REF: {{ .Values.configmap.apollo_graph_ref | quote }}
+  APOLLO_ROUTER_LOG: {{ .Values.configmap.loglevel | quote }}
+  ENVIRONMENT: {{ .Values.configmap.environment | quote }}
+  {{- if .Values.rhai.enabled }}
+    {{- range $path, $_ := .Files.Glob "**.rhai" }}
+          {{- base $path | nindent 2 }}: |
+          {{- $.Files.Get $path | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  configuration.yaml: |
+  {{- if .Values.rhai.enabled }}
+    rhai:
+      scripts: "/rhai/"
+  {{- end }}
+    health_check:
+      listen: 0.0.0.0:{{ default 8088 .Values.service.healthport }}
+      enabled: true
+    supergraph:
+      listen: 0.0.0.0:{{ default 4000 .Values.service.port }}
+      path: /graphql
+      introspection: {{ default false .Values.configmap.apollo_sandbox.enabled }}
+    include_subgraph_errors:
+      all: true
+    cors:
+      origins:
+        - https://studio.apollographql.com
+        - http://localhost:4000
+        - http://localhost:3000
+      {{- range .Values.cors.origins }}
+        - {{ . | quote }}
+      {{- end }}
+    homepage:
+      enabled: false
+    sandbox:
+      enabled: {{ default false .Values.configmap.apollo_sandbox.enabled }}
+    telemetry:
+      tracing:
+        trace_config:
+          service_name: "{{ include "brandrouter.fullname" . }}"
+          service_namespace: "apollo"
+          sampler: always_on
+        otlp:
+          enabled: true
+          endpoint: otel-collector.observability.svc.cluster.local:4317
+          protocol: grpc
+      metrics:
+        common:
+          # (Optional, default to "apollo-router") Set the service name to easily find metrics related to the apollo-router in your metrics dashboards
+          service_name: "{{ include "brandrouter.fullname" . }}"
+          # (Optional)
+          service_namespace: "apollo"
+        prometheus:
+          # By setting this endpoint you enable other containers and pods to access the prometheus endpoint
+          enabled: true
+          listen: 0.0.0.0:4000
+          path: /metrics
+    headers:
+      all:
+        request:
+          - propagate:
+              matching: .*
+    traffic_shaping:
+      deduplicate_variables: true
+      all:
+        deduplicate_query: true
+    limits:
+      max_depth: 15 # docs example is 100
+      max_height: 190 # docs example is 200
+      max_aliases: 30
+      max_root_fields: 20
+    authorization:
+      require_authentication: {{ .Values.auth0.require }}
+    authentication:
+      router:
+        jwt:
+          jwks:
+          {{- range .Values.auth0.jwks }}
+            - url: {{ .url | quote }}
+              issuer: {{ .issuer | quote }}
+          {{- end }}
+          {{- if .Values.auth0.header }}
+          header_value_prefix: ""
+          {{- end }}

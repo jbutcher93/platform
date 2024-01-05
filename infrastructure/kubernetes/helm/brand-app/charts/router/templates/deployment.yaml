@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "brandrouter.fullname" . }}
+  labels:
+    {{- include "brandrouter.labels" . | nindent 4 }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "brandrouter.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ default 1 .Values.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ default 1 .Values.rollingUpdate.maxSurge }}
+  template:
+    metadata:
+      annotations:
+        sidecar.opentelemetry.io/inject: {{ .Values.injectOtelSidecar.enabled | quote }}
+      labels:
+        {{- include "brandrouter.labels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /dist/config/router.yaml
+          subPath: configuration.yaml
+        {{- if .Values.local }}
+        - name: supergraph-volume
+          mountPath: dist/supergraph/supergraph.graphql
+          subPath: supergraph.graphql
+        {{- end }}
+          {{- range $path, $_ := .Files.Glob "**.rhai" }}
+        - name: config-volume
+          mountPath: "/rhai/{{ base $path }}"
+          subPath: {{ base $path }}
+          {{- end }}  
+        ports:
+        - name: apollo
+          containerPort: {{ default 4000 .Values.service.port }}
+          protocol: TCP
+        - name: health
+          containerPort: {{ default 8088 .Values.service.healthport }}
+          protocol: TCP
+        {{- if not .Values.local }}
+        livenessProbe:
+          httpGet:
+            path: /health?live
+            port: {{ default 8088 .Values.service.healthport }}
+        readinessProbe:
+          httpGet:
+            path: /health?ready
+            port: {{ default 8088 .Values.service.healthport }}
+        {{- end }}
+        env:
+          - name: APOLLO_GRAPH_REF
+            valueFrom:
+              configMapKeyRef:
+                key: APOLLO_GRAPH_REF
+                name: {{ include "brandrouter.fullname" . }}-cm
+          - name: APOLLO_ROUTER_LOG
+            valueFrom:
+              configMapKeyRef:
+                key: APOLLO_ROUTER_LOG
+                name: {{ include "brandrouter.fullname" . }}-cm
+          - name: APOLLO_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "brandrouter.fullname" . }}-secrets
+                key: "APOLLO_KEY"
+          {{- if .Values.local }}
+          - name: APOLLO_ROUTER_SUPERGRAPH_PATH
+            value: "/dist/supergraph/supergraph.graphql"
+          {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ include "brandrouter.fullname" . }}-cm
+      {{- if .Values.local }}
+      - name: supergraph-volume
+        configMap:
+          name: supergraph-cm
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - {{ include "brandrouter.fullname" . }}
+                topologyKey: "kubernetes.io/hostname"
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
