@@ -14,8 +14,7 @@ router:
     apollo_router:
       APOLLO_KEY: ""
   cors:
-    origins:
-      - ""
+    origins: []
   auth0:
     header: false
     require: ""
