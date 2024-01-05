@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: ${brand}-router
-  namespace: argocd
+  namespace: default
 spec:
   project: default
   source:
@@ -41,12 +41,12 @@ spec:
         - name: router.auth0.jwks[${index}].issuer
           value: ${url}
         %{ endfor }
-        %{ if cors_origins != "" }
+        # %{ if cors_origins != "" }
         %{ for index, url in cors_origins }
         - name: router.cors.origins[${index}]
           value: ${url}
         %{ endfor }
-        %{ endif }
+        # %{ endif }
         - name: router.istio.namespace
           value: ${brand}
         - name: router.secrets.apollo_router.APOLLO_KEY
@@ -62,7 +62,7 @@ spec:
       valueFiles: 
         - values.yaml
   destination:
-    server: "{{server}}"
+    server: https://kubernetes.default.svc
     namespace: ${brand}
   syncPolicy:
     syncOptions:
