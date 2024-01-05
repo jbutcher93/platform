@@ -19,7 +19,7 @@ variable "oralb_auth_urls" {
 variable "cors_origins_oralb" {
   type        = list(string)
   description = "cors origin URLs for oralb"
-  default     = [""]
+  default     = ["http://hello.com"]
 }
 
 variable "oralb_apollo_key" {

@@ -31,6 +31,6 @@ resource "kubectl_manifest" "argocd_oralb_router_chart_manifest" {
     memory          = "150M"
     header_disabled = "false"
     rhai_enabled    = "true"
-    cors_origins    = var.cors_origins_oralb
+    cors_origins    = ""
   })
 }

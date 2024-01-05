@@ -41,12 +41,12 @@ spec:
         - name: router.auth0.jwks[${index}].issuer
           value: ${url}
         %{ endfor }
-        # %{ if cors_origins != "" }
+        %{ if cors_origins != "" }
         %{ for index, url in cors_origins }
         - name: router.cors.origins[${index}]
           value: ${url}
         %{ endfor }
-        # %{ endif }
+        %{ endif }
         - name: router.istio.namespace
           value: ${brand}
         - name: router.secrets.apollo_router.APOLLO_KEY
