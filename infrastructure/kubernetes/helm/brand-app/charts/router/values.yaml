@@ -38,7 +38,7 @@ configmap:
 
 cors:
   origins: 
-
+    - ""
 auth0:
   header: false
   require: ""
