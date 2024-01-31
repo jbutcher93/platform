@@ -1,8 +1,0 @@
-apiVersion: v1
-data:
-  main.rhai: |
-    ${rhai_scripts}
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: busybox
