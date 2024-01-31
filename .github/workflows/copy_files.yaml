@@ -30,7 +30,7 @@ jobs:
 
       - name: Copy rhai directory to router Helm chart
         run: |
-          cp -R ./app/rhai ./copied
+          cp -R ./app/rhai ./infrastructure/kubernetes/helm/brand-app/files/
         shell: bash
 
       - name: Commit
